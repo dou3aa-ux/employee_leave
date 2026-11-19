@@ -1,0 +1,109 @@
+<div class="container-fluid py-4">
+  <div class="row g-4">
+
+    <!-- Left: Table -->
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Employee Portal</span>
+          <button class="btn btn-warning btn-sm" (click)="openModal()">+ Add New</button>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Contact</th>
+                  <th>Department</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of employeeList; track $index) {
+                  <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td class="fw-medium">{{ item.employeeName }}</td>
+                    <td>{{ item.emailId }}</td>
+                    <td>{{ item.contactNo }}</td>
+                    <td>{{ item.deptName }}</td>
+                    <td>
+                      <button class="btn btn-warning btn-sm me-1">Edit</button>
+                      <button class="btn btn-danger btn-sm">Delete</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Form (Modal style) -->
+    <div class="col-lg-4" [class.d-none]="!isModalOpen">
+      <div class="card side-panel">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>New Employee</span>
+          <button class="btn btn-sm btn-light" (click)="closeModal()">Close</button>
+        </div>
+
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">Employee Name</label>
+            <input type="text" class="form-control" placeholder="Enter employee name">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Contact No</label>
+            <input type="text" class="form-control" placeholder="Enter contact number">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" placeholder="Enter email">
+          </div>
+
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Parent Department</label>
+              <select class="form-select">
+                <option value="">Select department</option>
+                @for (dept of deptList; track $index) {
+                  <option [value]="dept.deptId">{{ dept.deptName }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Child Department</label>
+              <select class="form-select">
+                <option value="">Select department</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" placeholder="Enter password">
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Gender</label>
+              <select class="form-select">
+                <option value="">Select gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn btn-warning w-100">Save Employee</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,77 @@
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+}
+
+.card-header {
+  background: #1e293b;
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 0.9rem 1.25rem;
+}
+
+.leave-card {
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  transition: all 0.2s;
+  height: 100%;
+}
+
+.leave-card:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+}
+
+.badge-status {
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-status.approved {
+  background-color: #10b981;
+  color: white;
+}
+
+.badge-status.pending {
+  background-color: #f59e0b;
+  color: #1e293b;
+}
+
+.badge-status.rejected {
+  background-color: #ef4444;
+  color: white;
+}
+
+.form-control,
+.form-select {
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.btn-warning {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
+  color: white;
+}
