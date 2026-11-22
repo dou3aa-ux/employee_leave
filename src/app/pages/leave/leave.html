@@ -1,111 +1,218 @@
 <div class="container-fluid py-4">
-  <div class="row g-4">
+  @if (message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
 
-    <!-- Left: Cards -->
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <span>Leave Portal</span>
-          <button class="btn btn-warning btn-sm">+ Add New</button>
-        </div>
+  @if (errorMessage && !isFormOpen) {
+    <div class="alert alert-danger">{{ errorMessage }}</div>
+  }
 
-        <div class="card-body">
-          <div class="row g-3">
+  <div class="card">
+    <div
+      class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center"
+    >
+      <span>
+        {{ isAdmin ? 'Leave requests' : 'My leave requests' }}
+        <span class="badge text-bg-secondary">{{ leaveList.length }}</span>
+      </span>
 
-            <div class="col-md-4">
-              <div class="leave-card p-3">
-                <h6 class="fw-bold mb-2">Venkatesh</h6>
-                <div class="small mb-2">
-                  <div class="d-flex justify-content-between">
-                    <span>Start: <strong>12-Sep-26</strong></span>
-                    <span>End: <strong>13-Sep-26</strong></span>
-                  </div>
-                  <div class="mt-1">Type: sick</div>
-                </div>
-                <span class="badge-status approved">Approved</span>
-              </div>
-            </div>
-
-            <div class="col-md-4">
-              <div class="leave-card p-3">
-                <h6 class="fw-bold mb-2">saco</h6>
-                <div class="small mb-2">
-                  <div class="d-flex justify-content-between">
-                    <span>Start: <strong>16-Aug-26</strong></span>
-                    <span>End: <strong>18-Aug-26</strong></span>
-                  </div>
-                  <div class="mt-1">Type: personal</div>
-                </div>
-                <span class="badge-status approved">Approved</span>
-              </div>
-            </div>
-
-            <div class="col-md-4">
-              <div class="leave-card p-3">
-                <h6 class="fw-bold mb-2">Charlie</h6>
-                <div class="small mb-2">
-                  <div class="d-flex justify-content-between">
-                    <span>Start: <strong>31-Jul-26</strong></span>
-                    <span>End: <strong>01-Aug-26</strong></span>
-                  </div>
-                  <div class="mt-1">Type: Sports</div>
-                </div>
-                <span class="badge-status approved">Approved</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
+      <button class="btn btn-warning btn-sm" (click)="openForm()">
+        <i class="bi bi-plus-lg"></i>
+        New request
+      </button>
     </div>
 
-    <!-- Right: Form -->
-    <div class="col-lg-4">
-      <div class="card side-panel">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <span>New Leave Request</span>
-          <button class="btn btn-sm btn-light">Close</button>
+    <div class="card-body p-0 table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            @if (isAdmin) {
+              <th>Employee</th>
+            }
+            <th>Type</th>
+            <th>Dates</th>
+            <th>Days</th>
+            <th>Reason</th>
+            <th>Status</th>
+            @if (isAdmin) {
+              <th>Actions</th>
+            }
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (leave of leaveList; track leave.id) {
+            <tr>
+              @if (isAdmin) {
+                <td class="fw-medium">{{ leave.employeeName }}</td>
+              }
+              <td>{{ leave.type }}</td>
+              <td>
+                {{ leave.startDate | date: 'mediumDate' }} –
+                {{ leave.endDate | date: 'mediumDate' }}
+              </td>
+              <td>{{ duration(leave) }}</td>
+              <td>{{ leave.reason || '—' }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.text-bg-warning]="leave.status === 'Pending'"
+                  [class.text-bg-success]="leave.status === 'Approved'"
+                  [class.text-bg-danger]="leave.status === 'Rejected'"
+                >
+                  {{ leave.status }}
+                </span>
+              </td>
+
+              @if (isAdmin) {
+                <td class="text-nowrap">
+                  @if (leave.status === 'Pending') {
+                    <button
+                      class="btn btn-success btn-sm me-1"
+                      (click)="setStatus(leave, 'Approved')"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      class="btn btn-outline-danger btn-sm me-1"
+                      (click)="setStatus(leave, 'Rejected')"
+                    >
+                      Reject
+                    </button>
+                  }
+
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    (click)="deleteLeave(leave)"
+                    aria-label="Delete request"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td
+                [attr.colspan]="isAdmin ? 7 : 5"
+                class="text-center text-muted py-5"
+              >
+                No leave requests yet.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  @if (isFormOpen) {
+    <div class="modal-backdrop-custom" (click)="closeForm()">
+      <section
+        class="card leave-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="leave-form-title"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <span id="leave-form-title">New leave request</span>
+          <button class="btn btn-sm btn-light" (click)="closeForm()">
+            ×
+          </button>
         </div>
 
-        <div class="card-body">
-          <div class="mb-3">
-            <label class="form-label">Employee ID</label>
-            <select class="form-select">
-              <option>Select Employee</option>
-            </select>
-          </div>
+        <form class="card-body" (ngSubmit)="submit()">
+          @if (errorMessage) {
+            <div class="alert alert-danger py-2">{{ errorMessage }}</div>
+          }
+
+          @if (isAdmin) {
+            <div class="mb-3">
+              <label class="form-label" for="leaveEmployee">Employee</label>
+              <select
+                id="leaveEmployee"
+                name="employeeId"
+                class="form-select"
+                [(ngModel)]="form.employeeId"
+                required
+              >
+                <option [ngValue]="0">Select employee</option>
+                @for (employee of employees; track employee.employeeId) {
+                  <option [ngValue]="employee.employeeId">
+                    {{ employee.employeeName }}
+                  </option>
+                }
+              </select>
+            </div>
+          }
 
           <div class="mb-3">
-            <label class="form-label">Select Leave Type</label>
-            <select class="form-select">
-              <option>Select Leave Type</option>
+            <label class="form-label" for="leaveType">Leave type</label>
+            <select
+              id="leaveType"
+              name="type"
+              class="form-select"
+              [(ngModel)]="form.type"
+            >
+              <option>Annual</option>
               <option>Sick</option>
               <option>Personal</option>
-              <option>Marriage</option>
-              <option>Sports</option>
+              <option>Family</option>
+              <option>Other</option>
             </select>
           </div>
 
           <div class="row">
-            <div class="col-6 mb-3">
-              <label class="form-label">Start Date</label>
-              <input type="date" class="form-control">
+            <div class="col-sm-6 mb-3">
+              <label class="form-label" for="startDate">Start date</label>
+              <input
+                id="startDate"
+                name="startDate"
+                type="date"
+                class="form-control"
+                [(ngModel)]="form.startDate"
+                required
+              />
             </div>
-            <div class="col-6 mb-3">
-              <label class="form-label">End Date</label>
-              <input type="date" class="form-control">
+
+            <div class="col-sm-6 mb-3">
+              <label class="form-label" for="endDate">End date</label>
+              <input
+                id="endDate"
+                name="endDate"
+                type="date"
+                class="form-control"
+                [(ngModel)]="form.endDate"
+                [min]="form.startDate"
+                required
+              />
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Reason</label>
-            <textarea class="form-control" rows="3" placeholder="Enter reason for leave"></textarea>
+            <label class="form-label" for="leaveReason">Reason</label>
+            <textarea
+              id="leaveReason"
+              name="reason"
+              rows="3"
+              class="form-control"
+              [(ngModel)]="form.reason"
+              placeholder="Add a short note (optional)"
+            ></textarea>
           </div>
 
-          <button class="btn btn-primary w-100">Submit</button>
-        </div>
-      </div>
+          <button
+            class="btn btn-primary w-100"
+            type="submit"
+            [disabled]="isSaving"
+          >
+            {{ isSaving ? 'Submitting…' : 'Submit request' }}
+          </button>
+        </form>
+      </section>
     </div>
-
-  </div>
+  }
 </div>

@@ -1,109 +1,223 @@
 <div class="container-fluid py-4">
-  <div class="row g-4">
+  @if (successMessage) {
+    <div class="alert alert-success">{{ successMessage }}</div>
+  }
 
-    <!-- Left: Table -->
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <span>Employee Portal</span>
-          <button class="btn btn-warning btn-sm" (click)="openModal()">+ Add New</button>
-        </div>
+  @if (errorMessage && !isModalOpen) {
+    <div class="alert alert-danger">{{ errorMessage }}</div>
+  }
 
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Contact</th>
-                  <th>Department</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (item of employeeList; track $index) {
-                  <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td class="fw-medium">{{ item.employeeName }}</td>
-                    <td>{{ item.emailId }}</td>
-                    <td>{{ item.contactNo }}</td>
-                    <td>{{ item.deptName }}</td>
-                    <td>
-                      <button class="btn btn-warning btn-sm me-1">Edit</button>
-                      <button class="btn btn-danger btn-sm">Delete</button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
+  <div class="card">
+    <div
+      class="card-header d-flex flex-wrap gap-3 justify-content-between align-items-center"
+    >
+      <span>
+        Employees
+        <span class="badge text-bg-secondary">{{ employeeList.length }}</span>
+      </span>
+
+      <div class="d-flex gap-2">
+        <input
+          class="form-control form-control-sm search-box"
+          [(ngModel)]="searchTerm"
+          placeholder="Search employees"
+          aria-label="Search employees"
+        />
+        <button
+          class="btn btn-warning btn-sm text-nowrap"
+          (click)="openModal()"
+        >
+          <i class="bi bi-plus-lg"></i>
+          Add employee
+        </button>
       </div>
     </div>
 
-    <!-- Right: Form (Modal style) -->
-    <div class="col-lg-4" [class.d-none]="!isModalOpen">
-      <div class="card side-panel">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <span>New Employee</span>
-          <button class="btn btn-sm btn-light" (click)="closeModal()">Close</button>
-        </div>
+    <div class="card-body p-0 table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Department</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-        <div class="card-body">
-          <div class="mb-3">
-            <label class="form-label">Employee Name</label>
-            <input type="text" class="form-control" placeholder="Enter employee name">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Contact No</label>
-            <input type="text" class="form-control" placeholder="Enter contact number">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" placeholder="Enter email">
-          </div>
-
-          <div class="row">
-            <div class="col-6 mb-3">
-              <label class="form-label">Parent Department</label>
-              <select class="form-select">
-                <option value="">Select department</option>
-                @for (dept of deptList; track $index) {
-                  <option [value]="dept.deptId">{{ dept.deptName }}</option>
+        <tbody>
+          @for (item of filteredEmployees; track item.employeeId) {
+            <tr>
+              <td class="fw-medium">
+                {{ item.employeeName }}
+                @if (item.role === 'Admin') {
+                  <span class="badge text-bg-primary">Admin</span>
                 }
-              </select>
-            </div>
-            <div class="col-6 mb-3">
-              <label class="form-label">Child Department</label>
-              <select class="form-select">
-                <option value="">Select department</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-6 mb-3">
-              <label class="form-label">Password</label>
-              <input type="password" class="form-control" placeholder="Enter password">
-            </div>
-            <div class="col-6 mb-3">
-              <label class="form-label">Gender</label>
-              <select class="form-select">
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-          </div>
-
-          <button class="btn btn-warning w-100">Save Employee</button>
-        </div>
-      </div>
+              </td>
+              <td>{{ item.emailId }}</td>
+              <td>{{ item.contactNo || '—' }}</td>
+              <td>{{ item.deptName || '—' }}</td>
+              <td class="text-nowrap">
+                @if (item.role !== 'Admin') {
+                  <button
+                    class="btn btn-outline-primary btn-sm me-1"
+                    (click)="openModal(item)"
+                    aria-label="Edit employee"
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="deleteEmployee(item)"
+                    aria-label="Delete employee"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center text-muted py-5">
+                No employees found.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
-
   </div>
+
+  @if (isModalOpen) {
+    <div class="modal-backdrop-custom" (click)="closeModal()">
+      <section
+        class="card employee-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="employee-form-title"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <span id="employee-form-title">
+            {{ editingId ? 'Edit employee' : 'Add employee' }}
+          </span>
+          <button
+            class="btn btn-sm btn-light"
+            (click)="closeModal()"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <form class="card-body" (ngSubmit)="saveEmployee()">
+          @if (errorMessage) {
+            <div class="alert alert-danger py-2">{{ errorMessage }}</div>
+          }
+
+          <div class="mb-3">
+            <label class="form-label" for="employeeName">Full name</label>
+            <input
+              id="employeeName"
+              name="employeeName"
+              class="form-control"
+              [(ngModel)]="form.employeeName"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="employeeEmail">Email</label>
+            <input
+              id="employeeEmail"
+              name="emailId"
+              type="email"
+              class="form-control"
+              [(ngModel)]="form.emailId"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="employeeContact">Phone</label>
+            <input
+              id="employeeContact"
+              name="contactNo"
+              class="form-control"
+              [(ngModel)]="form.contactNo"
+            />
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="employeeDepartment">
+                Department
+              </label>
+              <select
+                id="employeeDepartment"
+                name="deptId"
+                class="form-select"
+                [(ngModel)]="form.deptId"
+              >
+                <option [ngValue]="null">Select department</option>
+                @for (dept of deptList; track dept.deptId) {
+                  <option [ngValue]="dept.deptId">{{ dept.deptName }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="employeeGender">Gender</label>
+              <select
+                id="employeeGender"
+                name="gender"
+                class="form-select"
+                [(ngModel)]="form.gender"
+              >
+                <option value="">Select</option>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="employeePassword">
+              {{ editingId ? 'New password (optional)' : 'Initial password' }}
+            </label>
+            <input
+              id="employeePassword"
+              name="password"
+              type="password"
+              class="form-control"
+              [(ngModel)]="form.password"
+              [required]="!editingId"
+              [placeholder]="
+                editingId
+                  ? 'Leave blank to keep current password'
+                  : 'At least 6 characters'
+              "
+            />
+          </div>
+
+          <button
+            class="btn btn-primary w-100"
+            type="submit"
+            [disabled]="isSaving"
+          >
+            {{
+              isSaving
+                ? 'Saving…'
+                : editingId
+                  ? 'Save changes'
+                  : 'Create employee'
+            }}
+          </button>
+        </form>
+      </section>
+    </div>
+  }
 </div>

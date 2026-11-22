@@ -25,18 +25,12 @@
               }
             ],
             "styles": [
-            "node_modules/bootstrap/dist/css/bootstrap.min.css",
-            "src/styles.css",
-            "node_modules/bootstrap-icons/font/bootstrap-icons.css",
-            "node_modules/bootstrap-icons/font/bootstrap-icons.css"
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "src/styles.css",
+              "node_modules/bootstrap-icons/font/bootstrap-icons.css"
             ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
             "security": {
               "allowedHosts": []
-            },
-            "ssr": {
-              "entry": "src/server.ts"
             }
           },
           "configurations": {
@@ -44,7 +38,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "700kB",
                   "maximumError": "1MB"
                 },
                 {
@@ -65,16 +59,19 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "employee_leave:build:production"
             },
-            "development": {
-              "buildTarget": "employee_leave:build:development"
-            }
+          "development": {
+            "buildTarget": "employee_leave:build:development"
+          }
           },
           "defaultConfiguration": "development"
-        },
+      },
         "extract-i18n": {
           "builder": "@angular/build:extract-i18n"
         },

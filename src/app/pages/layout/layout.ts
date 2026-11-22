@@ -1,5 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
 
 @Component({
   selector: 'app-layout',
@@ -9,10 +14,18 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
   styleUrl: './layout.css',
 })
 export class Layout {
-
   private router = inject(Router);
 
-  onLogout() {
+  user =
+    typeof localStorage !== 'undefined'
+      ? (JSON.parse(localStorage.getItem('leaveUser') || '{}') as {
+          name?: string;
+          role?: string;
+        })
+      : {};
+
+  onLogout(): void {
+    localStorage.removeItem('leaveToken');
     localStorage.removeItem('leaveUser');
     this.router.navigateByUrl('/login');
   }

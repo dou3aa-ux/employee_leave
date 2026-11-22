@@ -1,57 +1,25 @@
-.card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+.search-box {
+  width: min(260px, 45vw);
 }
 
-.card-header {
-  background: #1e293b;
-  color: white;
-  font-weight: 600;
-  border: none;
-  padding: 0.9rem 1.25rem;
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 55%);
 }
 
-.table thead th {
-  background-color: #f8fafc;
-  color: #475569;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  border-bottom: 2px solid #e2e8f0;
+.employee-modal {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
 }
 
-.table td {
-  vertical-align: middle;
-  padding: 0.85rem 1rem;
-}
-
-.form-control,
-.form-select {
-  border: 1.5px solid #cbd5e1 !important;
-  border-radius: 8px !important;
-  padding: 0.55rem 0.9rem;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #4f46e5 !important;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
-}
-
-.btn {
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-.btn-warning {
-  background-color: #f59e0b;
-  border-color: #f59e0b;
-  color: white;
-}
-
-.btn-danger {
-  background-color: #ef4444;
-  border-color: #ef4444;
+.employee-modal .card-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }

@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { LoginModel } from '../../model/Employee.model';
 import { EmployeeService } from '../../services/employee';
-import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-login',
   imports: [FormsModule],
@@ -10,21 +11,33 @@ import { Router } from '@angular/router';
   styleUrl: './login.css',
 })
 export class Login {
-  loginObj: LoginModel = new LoginModel();
+  loginObj = new LoginModel();
+  private employeeService = inject(EmployeeService);
+  private router = inject(Router);
 
-  employeeService = inject(EmployeeService)  
-  router =inject(Router)
+  errorMessage = '';
+  isLoading = false;
 
-  onLogin() {
-  if (this.loginObj.emailId === 'hradmin@gmail.com' && this.loginObj.password === '112233') {
-    alert("Login Success");
-    localStorage.setItem('leaveUser', JSON.stringify({
-      emailId: this.loginObj.emailId,
-      role: 'Admin'
-    }));
-    this.router.navigateByUrl("/dashboard");
-  } else {
-    alert("Wrong Credentials");
+  onLogin(): void {
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    this.employeeService
+      .login(this.loginObj.emailId, this.loginObj.password)
+      .subscribe({
+        next: (session) => {
+          localStorage.setItem('leaveToken', session.token);
+          localStorage.setItem('leaveUser', JSON.stringify(session.user));
+
+          this.router.navigateByUrl(
+            session.user.role === 'Admin' ? '/dashboard' : '/leave'
+          );
+        },
+        error: (error) => {
+          this.errorMessage =
+            error.error?.message || 'Unable to sign in. Please try again.';
+          this.isLoading = false;
+        },
+      });
   }
-}
 }

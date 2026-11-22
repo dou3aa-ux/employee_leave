@@ -1,105 +1,140 @@
 <div class="dashboard">
-
   <h3 class="page-title mb-4">Dashboard</h3>
 
-  <!-- Stats Cards -->
+  @if (errorMessage) {
+    <div class="alert alert-danger">{{ errorMessage }}</div>
+  }
+
   <div class="row g-4 mb-4">
-    <div class="col-md-3">
+    <div class="col-md-3 col-6">
       <div class="stat-card border-primary">
-        <div class="stat-label">TOTAL EMPLOYEES</div>
-        <div class="stat-value">156</div>
+        <div class="stat-label">EMPLOYEES</div>
+        <div class="stat-value">{{ data.totalEmployees }}</div>
       </div>
     </div>
-    <div class="col-md-3">
+
+    <div class="col-md-3 col-6">
       <div class="stat-card border-success">
-        <div class="stat-label">ACTIVE LEAVES</div>
-        <div class="stat-value">23</div>
+        <div class="stat-label">ON LEAVE TODAY</div>
+        <div class="stat-value">{{ data.activeLeaves }}</div>
       </div>
     </div>
-    <div class="col-md-3">
+
+    <div class="col-md-3 col-6">
       <div class="stat-card border-info">
         <div class="stat-label">PENDING APPROVALS</div>
-        <div class="stat-value">8</div>
+        <div class="stat-value">{{ data.pendingApprovals }}</div>
       </div>
     </div>
-    <div class="col-md-3">
+
+    <div class="col-md-3 col-6">
       <div class="stat-card border-warning">
-        <div class="stat-label">THIS MONTH</div>
-        <div class="stat-value">45</div>
+        <div class="stat-label">REQUESTS THIS MONTH</div>
+        <div class="stat-value">{{ data.leavesThisMonth }}</div>
       </div>
     </div>
   </div>
 
   <div class="row g-4">
-    <!-- Recent Leave Applications -->
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-header bg-white">
-          <h5 class="mb-0 text-primary">Recent Leave Applications</h5>
+    <div class="col-xl-8">
+      <div class="card h-100">
+        <div
+          class="card-header bg-white d-flex justify-content-between align-items-center"
+        >
+          <h5 class="mb-0 text-primary">Recent leave requests</h5>
+          <a routerLink="/leave" class="btn btn-outline-primary btn-sm">
+            View all
+          </a>
         </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead>
+
+        <div class="card-body p-0 table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Type</th>
+                <th>Period</th>
+                <th>Days</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (leave of data.recentLeaves; track leave.id) {
                 <tr>
-                  <th>EMPLOYEE</th>
-                  <th>LEAVE TYPE</th>
-                  <th>DURATION</th>
-                  <th>STATUS</th>
-                  <th>ACTION</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>John Doe</td>
-                  <td>Sick Leave</td>
-                  <td>2 days</td>
-                  <td><span class="badge bg-warning text-dark">Pending</span></td>
+                  <td class="fw-medium">{{ leave.employeeName }}</td>
+                  <td>{{ leave.type }}</td>
+                  <td>{{ leave.startDate }} – {{ leave.endDate }}</td>
+                  <td>{{ duration(leave.startDate, leave.endDate) }}</td>
                   <td>
-                    <button class="btn btn-success btn-sm me-1">Approve</button>
-                    <button class="btn btn-danger btn-sm">Reject</button>
+                    <span
+                      class="badge"
+                      [class.text-bg-warning]="leave.status === 'Pending'"
+                      [class.text-bg-success]="leave.status === 'Approved'"
+                      [class.text-bg-danger]="leave.status === 'Rejected'"
+                    >
+                      {{ leave.status }}
+                    </span>
+                  </td>
+                  <td class="text-nowrap">
+                    @if (leave.status === 'Pending') {
+                      <button
+                        class="btn btn-success btn-sm me-1"
+                        (click)="setStatus(leave.id, 'Approved')"
+                        aria-label="Approve"
+                      >
+                        <i class="bi bi-check-lg"></i>
+                      </button>
+                      <button
+                        class="btn btn-outline-danger btn-sm"
+                        (click)="setStatus(leave.id, 'Rejected')"
+                        aria-label="Reject"
+                      >
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    }
                   </td>
                 </tr>
+              } @empty {
                 <tr>
-                  <td>Jane Smith</td>
-                  <td>Annual Leave</td>
-                  <td>5 days</td>
-                  <td><span class="badge bg-success">Approved</span></td>
-                  <td>
-                    <button class="btn btn-info btn-sm">View</button>
+                  <td colspan="6" class="text-center text-muted py-5">
+                    No leave requests yet.
                   </td>
                 </tr>
-                <tr>
-                  <td>Mike Johnson</td>
-                  <td>Personal Leave</td>
-                  <td>1 day</td>
-                  <td><span class="badge bg-warning text-dark">Pending</span></td>
-                  <td>
-                    <button class="btn btn-success btn-sm me-1">Approve</button>
-                    <button class="btn btn-danger btn-sm">Reject</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="col-lg-4">
+    <div class="col-xl-4">
       <div class="card">
         <div class="card-header bg-white">
-          <h5 class="mb-0">Quick Actions</h5>
+          <h5 class="mb-0">Quick actions</h5>
         </div>
+
         <div class="card-body d-grid gap-3">
-          <button class="btn btn-primary btn-lg">Add New Employee</button>
-          <button class="btn btn-success btn-lg">New Leave Request</button>
-          <button class="btn btn-info btn-lg text-white">Export Reports</button>
-          <button class="btn btn-warning btn-lg text-white">System Settings</button>
+          <a routerLink="/employee" class="btn btn-primary btn-lg">
+            <i class="bi bi-person-plus me-2"></i>
+            Add employee
+          </a>
+
+          <a routerLink="/leave" class="btn btn-success btn-lg">
+            <i class="bi bi-calendar-plus me-2"></i>
+            Manage leave
+          </a>
+
+          <button
+            class="btn btn-outline-primary btn-lg"
+            (click)="exportLeaves()"
+          >
+            <i class="bi bi-download me-2"></i>
+            Export CSV report
+          </button>
         </div>
       </div>
     </div>
   </div>
-
 </div>
